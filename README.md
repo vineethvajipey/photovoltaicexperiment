@@ -106,56 +106,6 @@ Positive integer value associated with "interval" to be used as new delay
 }
 ```
 
-### Move
-
-Causes servo motors to move a set amount of steps in either the positive or negative direction
-
-#### Payload
-
-Signed integer value associated with "x" and "y" to be used as the amount of steps moved in both directions
-
-#### Example Message
-
-```
-{
-    "methodName": "move",
-    "responseTimeoutInSeconds": 200,
-    "payload" : {
-        "x": 400,
-        "y": -6000
-    }
-}
-```
-
-### Array Move
-
-Causes servo motors to execute several move commands in order
-
-#### Payload
-
-Array of signed integer values in sequential order associated with "x" and "y" to be used as the amount of steps moved in both directions; both arrays must be the same length
-
-#### Example Message
-
-```
-{
-    "methodName": "moveArray",
-    "responseTimeoutInSeconds": 200,
-    "payload" : {
-        "x": [500, -120, 40000, 0, 12300],
-        "y": [-500, 0, 5000, -950, 10000]
-    }
-}
-```
-
-### Reset
-
-Moves servo motors back to starting position, set when program begins operation
-
-#### Payload
-
-None
-
 #### Example Message
 
 ```
