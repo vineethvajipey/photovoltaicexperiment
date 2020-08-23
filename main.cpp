@@ -115,9 +115,7 @@ static int deviceMethodCallback(const char *methodName, const unsigned char *pay
   }
   else if (strcmp(methodName, "pwm") == 0)
   {
-    JsonVariant newInterval = doc["pwm"];
-    int pwm = newInterval.as<int>();
-    ledcWrite(ledChannel, pwm);
+    
   }
   else if (strcmp(methodName, "interval") == 0)
   {
@@ -127,14 +125,66 @@ static int deviceMethodCallback(const char *methodName, const unsigned char *pay
     Serial.print(interval);
     Serial.println(F("ms"));
   }
-  else if (strcmp(methodName, "getVoltage") == 0)
+  else if (strcmp(methodName, "data") == 0)
   {
-  }
-  else if (strcmp(methodName, "res") == 0)
-  {
-    Serial.print("res called");
     JsonVariant newInterval = doc["resistance"];
-    double res = newInterval.as<double>();
+    double resistance = newInterval.as<double>();
+    JsonVariant newInterval = doc["brightness"];
+    double brightness = newInterval.as<double>();
+
+    res(resistance);
+    bright(brightness);
+    
+  }
+  else
+  {
+    result = 404;
+    Serial.println(F("Warning: Received invalid command"));
+  }
+
+  snprintf(responseMessage, MESSAGE_MAX_LEN, responseMessageData, result);
+
+  *response_size = strlen(responseMessage) + 1;
+  *response = (unsigned char *)strdup(responseMessage);
+
+  return result;
+}
+
+//INIT WIFI
+static bool initWifi(int timeoutInMs)
+{
+  Serial.print(F("Info: Attempting to connect to "));
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+
+  int endTime = millis() + timeoutInMs;
+
+  do
+  {
+    //delay(500);
+    //Serial.print(".");
+    delay(50);
+    if (millis() > endTime) 
+    {
+      Serial.println(F("Error: Could not connect to WiFi"));
+      return false;
+    }
+  } while (WiFi.status() != WL_CONNECTED);
+
+  Serial.print(F("Info: WiFi connected. Local IP Address: "));
+  Serial.println(WiFi.localIP());
+  return true;
+}
+
+// methods
+
+void bright(double brightness) {
+JsonVariant newInterval = doc["pwm"];
+    int brightness = newInterval.as<int>();
+    ledcWrite(ledChannel, brightness);
+}
+
+void res(double res) {
     
     if(res < POT_MIN) {
       //use resisitor circuit
@@ -271,45 +321,6 @@ static int deviceMethodCallback(const char *methodName, const unsigned char *pay
     }
 
     Serial.print(res);
-  }
-  else
-  {
-    result = 404;
-    Serial.println(F("Warning: Received invalid command"));
-  }
-
-  snprintf(responseMessage, MESSAGE_MAX_LEN, responseMessageData, result);
-
-  *response_size = strlen(responseMessage) + 1;
-  *response = (unsigned char *)strdup(responseMessage);
-
-  return result;
-}
-
-//INIT WIFI
-static bool initWifi(int timeoutInMs)
-{
-  Serial.print(F("Info: Attempting to connect to "));
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);
-
-  int endTime = millis() + timeoutInMs;
-
-  do
-  {
-    //delay(500);
-    //Serial.print(".");
-    delay(50);
-    if (millis() > endTime) 
-    {
-      Serial.println(F("Error: Could not connect to WiFi"));
-      return false;
-    }
-  } while (WiFi.status() != WL_CONNECTED);
-
-  Serial.print(F("Info: WiFi connected. Local IP Address: "));
-  Serial.println(WiFi.localIP());
-  return true;
 }
 
 // COMMS TASK
